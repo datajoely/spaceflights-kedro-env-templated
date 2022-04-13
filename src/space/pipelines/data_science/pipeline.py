@@ -26,25 +26,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Project pipelines."""
-from typing import Dict
+"""
+This is a boilerplate pipeline 'data_science'
+generated using Kedro 0.17.5
+"""
 
-from kedro.pipeline import Pipeline
-from space.pipelines import data_processing as dp
-from space.pipelines import data_science as ds
+from kedro.pipeline import Pipeline, node
+
+from space.pipelines.data_science.nodes import evaluate_model, split_data, train_model
 
 
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
-
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-    """
-    data_processing_pipeline = dp.create_pipeline()
-    data_science_pipeline = ds.create_pipeline()
-
-    return {
-        "__default__": data_processing_pipeline + data_science_pipeline,
-        "dp": data_processing_pipeline,
-        "ds": data_science_pipeline
-    }
+def create_pipeline(**kwargs):
+    return Pipeline(
+        [
+            node(
+                func=split_data,
+                inputs=["model_input_table", "parameters"],
+                outputs=["X_train", "X_test", "y_train", "y_test"],
+                name="split_data_node",
+            ),
+            node(
+                func=train_model,
+                inputs=["X_train", "y_train"],
+                outputs="regressor",
+                name="train_model_node",
+            ),
+            node(
+                func=evaluate_model,
+                inputs=["regressor", "X_test", "y_test"],
+                outputs=None,
+                name="evaluate_model_node",
+            ),
+        ]
+    )
