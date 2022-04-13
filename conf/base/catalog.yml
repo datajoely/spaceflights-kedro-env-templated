@@ -31,5 +31,5 @@ model_input_table:
 
 regressor:
   type: pickle.PickleDataSet
-  filepath: data/06_models/regressor.pickle
+  filepath: data/${KEDRO_ENV}/regressor.pickle
   versioned: true
